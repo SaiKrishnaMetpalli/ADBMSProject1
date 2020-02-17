@@ -16,7 +16,7 @@ import java.util.Collections;
 
 public class ReadSortFile {
 
-	public void readFileAndSort(String filePath,String fileName) {
+	public ArrayList<File> readFileAndSort(String filePath,String fileName) {
 		try {			
 			File file = new File(filePath+fileName);
 			RandomAccessFile reader = new RandomAccessFile(file, "r");
@@ -26,6 +26,7 @@ public class ReadSortFile {
 			int maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 14000); 
 
 			ArrayList<String> data = new ArrayList<String>();
+			ArrayList<File> sortedFiles=new ArrayList<File>();
 
 			int numberOfPass = (int) Math.ceil( blocksInFile / (float) maxBlocksInMem);
 			int start = 0;
@@ -55,17 +56,25 @@ public class ReadSortFile {
 				Collections.sort(data);
 				File fObj=new File(filePath+"sorted_MainSample_"+j+".txt");
 				PrintStream ps=new PrintStream(fObj);
-				for(String s:data) {
-					ps.println(s);
-				}				
+				for(int s=0;s<data.size();s++) {
+					if(s+1<data.size()) {
+						if((data.get(s).substring(0,8).compareTo(data.get(s+1).substring(0,8)))!=0) {
+							ps.println(data.get(s));
+						}
+					} else {
+						ps.println(data.get(s));
+					}					
+				}			
 				ps.close();				
 				data.clear();
+				sortedFiles.add(fObj);
 				start += maxBlocksInMem * 40 * 102;				
 				blocksInFile -= maxBlocksInMem;
 			}
 			reader.close();
+			return sortedFiles;
 		} catch(Exception ex) {
-			
+			return null;
 		}
 	}
 	
