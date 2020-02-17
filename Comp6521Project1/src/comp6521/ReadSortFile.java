@@ -23,7 +23,7 @@ public class ReadSortFile {
 			FileChannel fileChannel = reader.getChannel();
 
 			int blocksInFile = getNumberOfLines(file) / 40;
-			int maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 14000);
+			int maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 14000); 
 
 			ArrayList<String> data = new ArrayList<String>();
 
