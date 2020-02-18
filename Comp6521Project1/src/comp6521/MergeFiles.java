@@ -27,9 +27,6 @@ public class MergeFiles {
 
 	public String process(String fileName, List<File> tmpFileList) throws IOException {
 		File outputFile = new File(fileName);
-		if (!outputFile.exists()) {
-			outputFile.createNewFile();
-		}
 		mergeSortedTmpFiles(tmpFileList, outputFile);
 		removeDuplicate(outputFile);
 		outputFile.delete();
