@@ -1,4 +1,4 @@
-package practice;
+package comp65321;
 
 import java.io.BufferedReader;
 import java.io.IOException;
