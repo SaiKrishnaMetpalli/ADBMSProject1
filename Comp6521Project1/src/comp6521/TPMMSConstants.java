@@ -1,4 +1,4 @@
-package practice;
+package comp6521;
 
 /**
  * COMP6521 Project 1 Date: 2017-02-12 Author: Yuanwen Qin 40011473
