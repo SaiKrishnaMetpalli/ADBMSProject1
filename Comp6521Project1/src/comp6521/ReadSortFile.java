@@ -14,7 +14,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class ReadSortFile {
 	int size;
@@ -38,7 +37,7 @@ public class ReadSortFile {
 				fileChannel = reader.getChannel();
 
 				blocksInFile = getNumberOfLines(file) / 40;
-				maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 12000);
+				maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 14000);
 
 				data.clear();
 
