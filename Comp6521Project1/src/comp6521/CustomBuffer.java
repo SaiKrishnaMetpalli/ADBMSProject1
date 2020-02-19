@@ -3,12 +3,12 @@ package comp6521;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class CustomQueue {
+public class CustomBuffer {
 
 	public BufferedReader fileBufferReader;
 	private String value;
 
-	public CustomQueue(BufferedReader bufferedReader) throws IOException {
+	public CustomBuffer(BufferedReader bufferedReader) throws IOException {
 		this.fileBufferReader = bufferedReader;
 		read();
 	}

@@ -34,10 +34,10 @@ public class MergeFiles {
 	}
 
 	private void mergeSortedTmpFiles(List<File> fileList, File outputFile) throws IOException {
-		ArrayList<CustomQueue> fileBufferList = new ArrayList<>();
+		ArrayList<CustomBuffer> fileBufferList = new ArrayList<>();
 		for (File file : fileList) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-			CustomQueue fileBuffer = new CustomQueue(reader);
+			CustomBuffer fileBuffer = new CustomBuffer(reader);
 			fileBufferList.add(fileBuffer);
 		}
 		outputFile.delete();
@@ -50,15 +50,15 @@ public class MergeFiles {
 
 	}
 
-	private void merge(BufferedWriter fileBufferWriter, List<CustomQueue> buffers) throws IOException {
-		PriorityQueue<CustomQueue> pq = new PriorityQueue<>(11, new Comparator<CustomQueue>() {
+	private void merge(BufferedWriter fileBufferWriter, List<CustomBuffer> buffers) throws IOException {
+		PriorityQueue<CustomBuffer> pq = new PriorityQueue<>(11, new Comparator<CustomBuffer>() {
 			@Override
-			public int compare(CustomQueue fb1, CustomQueue fb2) {
+			public int compare(CustomBuffer fb1, CustomBuffer fb2) {
 				return idComparator.compare(fb1.getTopLine(), fb2.getTopLine());
 			}
 		});
 
-		for (CustomQueue fileBuffer : buffers) {
+		for (CustomBuffer fileBuffer : buffers) {
 			if (!fileBuffer.empty()) {
 				TPMMS.setDiskIo(TPMMS.getDiskIo()+1);
 				pq.add(fileBuffer);
@@ -67,7 +67,7 @@ public class MergeFiles {
 		try {
 			while (pq.size() > 0) {
 
-				CustomQueue fileBuffer = pq.poll();
+				CustomBuffer fileBuffer = pq.poll();
 				String line = fileBuffer.increasePointer();
 				fileBufferWriter.write(line);
 				fileBufferWriter.newLine();
@@ -79,7 +79,7 @@ public class MergeFiles {
 			}
 		} finally {
 			fileBufferWriter.close();
-			for (CustomQueue fileBuffer : pq) {
+			for (CustomBuffer fileBuffer : pq) {
 				fileBuffer.close();
 			}
 		}
