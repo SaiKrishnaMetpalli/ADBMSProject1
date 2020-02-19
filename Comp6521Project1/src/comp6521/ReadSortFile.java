@@ -38,7 +38,7 @@ public class ReadSortFile {
 				fileChannel = reader.getChannel();
 
 				blocksInFile = getNumberOfLines(file) / 40;
-				maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 14000);
+				maxBlocksInMem = (int) (Runtime.getRuntime().freeMemory() / 12000);
 
 				data.clear();
 
@@ -46,7 +46,7 @@ public class ReadSortFile {
 				start = 0;
 
 				for (int j = 0; j < numberOfPass; j++) {
-
+					TPMMS.setDiskIo(TPMMS.getDiskIo()+1);
 					fileChannel.position(start);
 					int capacity = blocksInFile < maxBlocksInMem ? (blocksInFile * 40 * 102) - 2
 							: maxBlocksInMem * 40 * 102;
@@ -100,19 +100,6 @@ public class ReadSortFile {
 		} catch (Exception ex) {
 		}
 		return sortedFiles;
-	}
-
-	private List<FileChannel> getmergeFileChannels(String filePath, int numberOfPass,
-			List<FileChannel> mergeChannelList) throws FileNotFoundException {
-
-		for (int j = 0; j < numberOfPass; j++) {
-			File fObj = new File(filePath + "sorted_MainSample_" + j + ".txt");
-			RandomAccessFile mergeReader = new RandomAccessFile(fObj, "r");
-			FileChannel mergeChannel = mergeReader.getChannel();
-			mergeChannelList.add(mergeChannel);
-
-		}
-		return mergeChannelList;
 	}
 
 	private int getNumberOfLines(File file) throws FileNotFoundException, IOException {

@@ -5,6 +5,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class TPMMS {
+	static int diskIo;
+
+	public static int getDiskIo() {
+		return diskIo;
+	}
+
+	public static void setDiskIo(int val) {
+		diskIo = val;
+	}
 
 	public static void main(String[] args) throws IOException {
 
@@ -19,8 +28,8 @@ public class TPMMS {
 			directory.mkdir();
 		}
 		merge.process(TPMMSConstants.OUTPUT_FILE_PATH + TPMMSConstants.SORTED_FILE_NAME, sortedFiles);
-		System.out.println("Duplicates removed and files merged");
+		TPMMS.setDiskIo(TPMMS.getDiskIo()+1);
+		System.out.println("Duplicates removed and files merged :: with DISK IO :: " + TPMMS.getDiskIo());
 	}
 
 }
-

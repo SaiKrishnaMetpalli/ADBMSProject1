@@ -9,5 +9,6 @@ public interface TPMMSConstants {
 	String FINAL_FILE_NAME = "result.txt";
 	String[] INPUT_FILE = { "tt2.txt", "tt1.txt" };
 	int LENGTH_OF_EMP_ID = 8;
+	int diskIo = 0;
 
 }

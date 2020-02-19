@@ -60,6 +60,7 @@ public class MergeFiles {
 
 		for (CustomQueue fileBuffer : buffers) {
 			if (!fileBuffer.empty()) {
+				TPMMS.setDiskIo(TPMMS.getDiskIo()+1);
 				pq.add(fileBuffer);
 			}
 		}
