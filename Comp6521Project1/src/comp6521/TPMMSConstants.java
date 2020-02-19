@@ -8,7 +8,7 @@ public interface TPMMSConstants {
 	String SORTED_FILE_NAME = "sorted.txt";
 	String FINAL_FILE_NAME = "result.txt";
 	String[] INPUT_FILE = { "tt2.txt", "tt1.txt" };
-	int LENGTH_OF_EMP_ID = 8;
+	int LENGTH_OF_EMP_ID = 18;
 	int diskIo = 0;
 
 }
