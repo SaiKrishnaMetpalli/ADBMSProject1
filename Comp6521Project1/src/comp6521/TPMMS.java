@@ -1,11 +1,6 @@
 package comp6521;
 
-import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class TPMMS {
@@ -26,7 +21,9 @@ public class TPMMS {
 
 		CreateBitmap bitmap = new CreateBitmap();
 		bitmap.createIndex(TPMMSConstants.TUPLES_FILE_PATH);
-
+		System.gc();
+		MergeFiles merge = new MergeFiles();
+		merge.removeDuplicate();
 		System.out.print("Files Sorted :: Time elasped :: ");
 		System.out.println((new Date().getTime() - start) + " milliseconds");
 

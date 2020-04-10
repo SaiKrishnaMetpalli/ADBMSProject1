@@ -31,17 +31,16 @@ public class MergeIndex {
 	public String processBitmaps(String fileName, long tuples) throws IOException {
 		File outputFile = new File(TPMMSConstants.FINAL_INDEX_FILE_PATH + fileName + "_positionIndex.txt");
 		if (!outputFile.exists()) {
-			outputFile.createNewFile();
+			outputFile.getParentFile().mkdirs();
 		}
 		mergeSortedTmpFiles(outputFile);
 		removeDuplicate(outputFile, fileName, tuples);
-//		outputFile.delete();
+		outputFile.delete();
 		return null;
 	}
 
 	private void mergeSortedTmpFiles(File outputFile) throws IOException {
 		ArrayList<CustomBuffer> fileBufferList = new ArrayList<>();
-		outputFile.createNewFile();
 		File file = new File(TPMMSConstants.INDEX_FILE_PATH);
 		File[] files = file.listFiles();
 		for (File f : files) {
@@ -50,7 +49,7 @@ public class MergeIndex {
 			CustomBuffer fileBuffer = new CustomBuffer(reader);
 			fileBufferList.add(fileBuffer);
 		}
-//		outputFile.delete();
+		outputFile.delete();
 		BufferedWriter bufferedWriter = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(outputFile, true), "UTF-8"));
 		merge(bufferedWriter, fileBufferList);
@@ -104,7 +103,7 @@ public class MergeIndex {
 		try {
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(TPMMSConstants.OUTPUT_FILE_PATH +fileName, false), "UTF-8"));
+					new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH +fileName, false), "UTF-8"));
 			String line1 = reader.readLine();
 			String line2 = reader.readLine();
 			line1.intern();

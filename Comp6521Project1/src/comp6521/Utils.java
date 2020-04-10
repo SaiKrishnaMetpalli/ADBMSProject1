@@ -49,7 +49,7 @@ public class Utils {
 		BufferedWriter bf = null;
 		try {
 			if (!file.exists()) {
-				file.createNewFile();
+				file.getParentFile().mkdirs();
 			}
 			bf = new BufferedWriter(new FileWriter(file));
 			for (Entry<Integer, ArrayList<Integer>> entry : bitMap.entrySet()) {

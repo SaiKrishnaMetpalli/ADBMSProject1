@@ -178,6 +178,7 @@ public class CreateBitmap {
 			ArrayList<Integer> counters = new ArrayList<Integer>();
 			ArrayList<String> currenLines = new ArrayList<String>();
 			File file = new File(TPMMSConstants.INDEX_FILE_PATH);
+			
 			File[] files = file.listFiles();
 			for (File f : files) {
 				indexBuffers.add(new LineNumberReader(Files.newBufferedReader(Paths.get(f.getAbsolutePath()))));
