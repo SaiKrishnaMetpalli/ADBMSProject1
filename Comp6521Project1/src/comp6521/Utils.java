@@ -41,8 +41,8 @@ public class Utils {
 		}
 
 	}
-
-	public static void writeBitmap(TreeMap<Integer, ArrayList<Integer>> bitMap, String filePath, int count,
+	
+	public static void writeBitmap(TreeMap<String, ArrayList<Integer>> bitMap, String filePath, int count,
 			long tuplesInFile) {
 
 		File file = new File(TPMMSConstants.INDEX_FILE_PATH + "_bitmap_" + count);
@@ -52,7 +52,7 @@ public class Utils {
 				file.getParentFile().mkdirs();
 			}
 			bf = new BufferedWriter(new FileWriter(file));
-			for (Entry<Integer, ArrayList<Integer>> entry : bitMap.entrySet()) {
+			for (Entry<String, ArrayList<Integer>> entry : bitMap.entrySet()) {
 
 //				bf.write(entry.getKey() + ":" + getBits(entry, tuplesInFile).replace("[","").replace("]", ""));
 				bf.write(entry.getKey() + ":" + (entry.getValue().toString()).replace("[", "").replace("]", ""));
@@ -70,6 +70,7 @@ public class Utils {
 			}
 		}
 	}
+
 
 	private static String getBits(Entry<Integer, ArrayList<Integer>> entry, long tuplesInFile) {
 		sb.setLength(0);

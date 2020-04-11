@@ -28,13 +28,19 @@ public class MergeIndex {
 		}
 	};
 
-	public String processBitmaps(String fileName, long tuples) throws IOException {
+	public String processBitmaps(String fileName, long tuples,String indexName) throws IOException {
 		File outputFile = new File(TPMMSConstants.FINAL_INDEX_FILE_PATH + fileName + "_positionIndex.txt");
 		if (!outputFile.exists()) {
 			outputFile.getParentFile().mkdirs();
 		}
 		mergeSortedTmpFiles(outputFile);
-		removeDuplicate(outputFile, fileName, tuples);
+		if(indexName=="EmpID") {
+			mergeEmpIDIndexFiles(outputFile, fileName, tuples);
+		} else if(indexName=="Gender") {
+			mergeGenderIndexFiles(outputFile, fileName, tuples);
+		} else {
+			mergeDeptIndexFiles(outputFile, fileName, tuples);
+		}		
 		outputFile.delete();
 		return null;
 	}
@@ -95,7 +101,7 @@ public class MergeIndex {
 		}
 	}
 
-	public void removeDuplicate(File file, String fileName, long tuples) throws IOException {
+	public void mergeEmpIDIndexFiles(File file, String fileName, long tuples) throws IOException {
 		BufferedReader reader = null;
 		BufferedWriter bufferedWriter = null;
 		file.createNewFile();
@@ -108,14 +114,20 @@ public class MergeIndex {
 			String line2 = reader.readLine();
 			line1.intern();
 			line2.intern();
-			while (line2 != null) {
-				if (line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID)
-						.compareTo(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID)) == 0) {
-					arr.addAll(Arrays.asList(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split(",")));
-					line1 = line2;
-					line2 = reader.readLine();
+			while (line1 != null) {				 
+				arr.addAll(Arrays.asList(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split(",")));
+				if(line1!=null && line2!=null) {
+					if (line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID)
+							.compareTo(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID)) != 0) {
+						Collections.sort(arr, new CustomComparator());
+						Integer[] boxedArray = getBits(arr, (int) tuples);
+						List<Integer> list = new ArrayList<>();
+						Collections.addAll(list, boxedArray);
+						bufferedWriter.write(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID) + ":" + Arrays.asList(boxedArray));
+						arr.clear();
+						bufferedWriter.newLine();					
+					}
 				} else {
-					arr.addAll(Arrays.asList(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split(",")));
 					Collections.sort(arr, new CustomComparator());
 					Integer[] boxedArray = getBits(arr, (int) tuples);
 					List<Integer> list = new ArrayList<>();
@@ -123,11 +135,111 @@ public class MergeIndex {
 					bufferedWriter.write(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID) + ":" + Arrays.asList(boxedArray));
 					arr.clear();
 					bufferedWriter.newLine();
-					line1 = line2;
-					line2 = reader.readLine();
-
 				}
+				line1 = line2;
+				line2 = reader.readLine();
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			reader.close();
+			bufferedWriter.close();
+		}
 
+	}
+	
+	public void mergeGenderIndexFiles(File file, String fileName, long tuples) throws IOException {
+		BufferedReader reader = null;
+		BufferedWriter bufferedWriter = null;
+		file.createNewFile();
+		ArrayList<String> arr = new ArrayList<String>();
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH +fileName, false), "UTF-8"));
+			String line1 = reader.readLine();
+			String line2 = reader.readLine();
+			line1.intern();
+			line2.intern();
+			while (line1 != null) {
+				arr.addAll(Arrays.asList(line1.substring(1 + 1).split(",")));
+				if(line1!=null && line2!=null) {
+					if (line1.substring(0, 1)
+							.compareTo(line2.substring(0, 1)) != 0) {
+						Collections.sort(arr, new CustomComparator());
+						Integer[] boxedArray = getBits(arr, (int) tuples);
+						List<Integer> list = new ArrayList<>();
+						Collections.addAll(list, boxedArray);
+						bufferedWriter.write(line1.substring(0, 1) + ":" + Arrays.asList(boxedArray));
+						arr.clear();
+						bufferedWriter.newLine();					
+					}
+				} else {
+					Collections.sort(arr, new CustomComparator());
+					Integer[] boxedArray = getBits(arr, (int) tuples);
+					List<Integer> list = new ArrayList<>();
+					Collections.addAll(list, boxedArray);
+					bufferedWriter.write(line1.substring(0, 1) + ":" + Arrays.asList(boxedArray));
+					arr.clear();
+					bufferedWriter.newLine();
+				}
+				line1 = line2;
+				line2 = reader.readLine();
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			reader.close();
+			bufferedWriter.close();
+		}
+
+	}
+	
+	public void mergeDeptIndexFiles(File file, String fileName, long tuples) throws IOException {
+		BufferedReader reader = null;
+		BufferedWriter bufferedWriter = null;
+		file.createNewFile();
+		ArrayList<String> arr = new ArrayList<String>();
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH +fileName, false), "UTF-8"));
+			String line1 = reader.readLine();
+			String line2 = reader.readLine();
+			line1.intern();
+			line2.intern();
+			while (line1 != null) {
+				arr.addAll(Arrays.asList(line1.substring(3 + 1).split(",")));
+				if(line1!=null && line2!=null) {
+					if (line1.substring(0, 3)
+							.compareTo(line2.substring(0, 3)) != 0) {
+						Collections.sort(arr, new CustomComparator());
+						Integer[] boxedArray = getBits(arr, (int) tuples);
+						List<Integer> list = new ArrayList<>();
+						Collections.addAll(list, boxedArray);
+						bufferedWriter.write(line1.substring(0, 3) + ":" + Arrays.asList(boxedArray));
+						arr.clear();
+						bufferedWriter.newLine();					
+					}
+				} else {
+					Collections.sort(arr, new CustomComparator());
+					Integer[] boxedArray = getBits(arr, (int) tuples);
+					List<Integer> list = new ArrayList<>();
+					Collections.addAll(list, boxedArray);
+					bufferedWriter.write(line1.substring(0, 3) + ":" + Arrays.asList(boxedArray));
+					arr.clear();
+					bufferedWriter.newLine();
+				}
+				line1 = line2;
+				line2 = reader.readLine();
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -142,9 +254,8 @@ public class MergeIndex {
 
 	}
 
-	private Integer[] getBits(ArrayList<String> entry, int tuplesInFile) {
-		int v = tuplesInFile;
-		Integer[] a = new Integer[20000];
+	private Integer[] getBits(ArrayList<String> entry, int tuplesInFile) {		
+		Integer[] a = new Integer[tuplesInFile];
 		Arrays.fill(a, 0);
 		entry.stream().forEach(val -> {
 			a[Integer.parseInt(val.trim()) - 1] = 1;

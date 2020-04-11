@@ -21,6 +21,8 @@ public class TPMMS {
 
 		CreateBitmap bitmap = new CreateBitmap();
 		bitmap.createIndex(TPMMSConstants.TUPLES_FILE_PATH);
+		bitmap.createGenderIndex(TPMMSConstants.TUPLES_FILE_PATH);
+		bitmap.createDeptIndex(TPMMSConstants.TUPLES_FILE_PATH);
 		System.gc();
 		MergeFiles merge = new MergeFiles();
 		merge.removeDuplicate();

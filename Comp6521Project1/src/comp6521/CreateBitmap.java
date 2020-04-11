@@ -29,7 +29,7 @@ public class CreateBitmap {
 		long tuplesInFile = 0;
 		int maxTuplesInMem = 0;
 		FileChannel channel = null;
-		TreeMap<Integer, ArrayList<Integer>> bitMap = null;
+		TreeMap<String, ArrayList<Integer>> bitMap = null;
 		try {
 			for (String fileName : TPMMSConstants.INPUT_FILE) {
 
@@ -46,7 +46,7 @@ public class CreateBitmap {
 
 				while (flag) {
 					j++;
-					bitMap = new TreeMap<Integer, ArrayList<Integer>>();
+					bitMap = new TreeMap<String, ArrayList<Integer>>();
 
 					flag = false;
 					MappedByteBuffer buffer = null;
@@ -61,11 +61,11 @@ public class CreateBitmap {
 							flag = true;
 							i++;
 							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
-							if (!bitMap.containsKey(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))))) {
-								bitMap.put(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))),
+							if (!bitMap.containsKey(new String(Arrays.copyOfRange(data, 0, 8)))) {
+								bitMap.put(new String(Arrays.copyOfRange(data, 0, 8)),
 										new ArrayList<Integer>());
 							}
-							(bitMap.get(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))))).add(i);
+							(bitMap.get(new String(Arrays.copyOfRange(data, 0, 8)))).add(i);
 						}
 
 						if ((buffer.capacity() / 102.0) > 0) {
@@ -81,9 +81,144 @@ public class CreateBitmap {
 				}
 				System.gc();
 				MergeIndex merge = new MergeIndex();
-				merge.processBitmaps(fileName,t);
+				merge.processBitmaps(fileName,t,"EmpID");
+				channel.close();
 			}
-			channel.close();
+			
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public void createGenderIndex(String filePath) {
+		File file = null;
+		long tuplesInFile = 0;
+		int maxTuplesInMem = 0;
+		FileChannel channel = null;
+		TreeMap<String, ArrayList<Integer>> bitMap = null;
+		try {
+			for (String fileName : TPMMSConstants.INPUT_FILE) {
+
+				System.gc();
+				boolean flag = true;
+				int start = 0;
+				file = new File(filePath + "\\" + fileName);
+				tuplesInFile = (file.length() + 2) / 102;
+				long t = tuplesInFile;
+				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (SIZE_OF_TUPLE)) / 4;
+				channel = new FileInputStream(filePath + "\\" + fileName).getChannel();
+				int j = 0;
+				int i = 0;
+
+				while (flag) {
+					j++;
+					bitMap = new TreeMap<String, ArrayList<Integer>>();
+
+					flag = false;
+					MappedByteBuffer buffer = null;
+					if (tuplesInFile > 0) {
+						buffer = channel.map(FileChannel.MapMode.READ_ONLY, start,
+								((tuplesInFile < maxTuplesInMem ? (tuplesInFile * 102) - 2 : maxTuplesInMem * 102)));
+						byte[] data = new byte[102];
+						while (buffer.hasRemaining()) {
+							if (buffer.remaining() < 102 && buffer.remaining() != 100) {
+								break;
+							}
+							flag = true;
+							i++;
+							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
+							if (!bitMap.containsKey(new String(Arrays.copyOfRange(data, 43, 44)))) {
+								bitMap.put(new String(Arrays.copyOfRange(data, 43, 44)),
+										new ArrayList<Integer>());
+							}
+							(bitMap.get(new String(Arrays.copyOfRange(data, 43, 44)))).add(i);
+						}
+
+						if ((buffer.capacity() / 102.0) > 0) {
+//						quickS(0, bufferArray.length - 1);
+//						writeToFile(bitMap, "bitmap");
+							Utils.writeBitmap(bitMap, filePath, j, t);
+							System.gc();
+						}
+						tuplesInFile = (tuplesInFile * 102 - buffer.capacity()) / 102;
+						start = start + buffer.capacity();
+						buffer.clear();
+					}
+				}
+				System.gc();
+				MergeIndex merge = new MergeIndex();
+				merge.processBitmaps(fileName.substring(0,3)+"_genderIndex.txt",t,"Gender");
+				channel.close();
+			}
+			
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public void createDeptIndex(String filePath) {
+		File file = null;
+		long tuplesInFile = 0;
+		int maxTuplesInMem = 0;
+		FileChannel channel = null;
+		TreeMap<String, ArrayList<Integer>> bitMap = null;
+		try {
+			for (String fileName : TPMMSConstants.INPUT_FILE) {
+
+				System.gc();
+				boolean flag = true;
+				int start = 0;
+				file = new File(filePath + "\\" + fileName);
+				tuplesInFile = (file.length() + 2) / 102;
+				long t = tuplesInFile;
+				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (SIZE_OF_TUPLE)) / 4;
+				channel = new FileInputStream(filePath + "\\" + fileName).getChannel();
+				int j = 0;
+				int i = 0;
+
+				while (flag) {
+					j++;
+					bitMap = new TreeMap<String, ArrayList<Integer>>();
+
+					flag = false;
+					MappedByteBuffer buffer = null;
+					if (tuplesInFile > 0) {
+						buffer = channel.map(FileChannel.MapMode.READ_ONLY, start,
+								((tuplesInFile < maxTuplesInMem ? (tuplesInFile * 102) - 2 : maxTuplesInMem * 102)));
+						byte[] data = new byte[102];
+						while (buffer.hasRemaining()) {
+							if (buffer.remaining() < 102 && buffer.remaining() != 100) {
+								break;
+							}
+							flag = true;
+							i++;
+							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
+							if (!bitMap.containsKey(new String(Arrays.copyOfRange(data, 44, 47)))) {
+								bitMap.put(new String(Arrays.copyOfRange(data, 44, 47)),
+										new ArrayList<Integer>());
+							}
+							(bitMap.get(new String(Arrays.copyOfRange(data, 44, 47)))).add(i);
+						}
+
+						if ((buffer.capacity() / 102.0) > 0) {
+//						quickS(0, bufferArray.length - 1);
+//						writeToFile(bitMap, "bitmap");
+							Utils.writeBitmap(bitMap, filePath, j, t);
+							System.gc();
+						}
+						tuplesInFile = (tuplesInFile * 102 - buffer.capacity()) / 102;
+						start = start + buffer.capacity();
+						buffer.clear();
+					}
+				}
+				System.gc();
+				MergeIndex merge = new MergeIndex();
+				merge.processBitmaps(fileName.substring(0,3)+"_deptIndex.txt",t,"Dept");
+				channel.close();
+			}
+			
 			
 		} catch (Exception ex) {
 			ex.printStackTrace();
