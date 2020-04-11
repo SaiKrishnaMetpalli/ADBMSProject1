@@ -29,7 +29,7 @@ public class CreateBitmap {
 		long tuplesInFile = 0;
 		int maxTuplesInMem = 0;
 		FileChannel channel = null;
-		TreeMap<String, ArrayList<Integer>> bitMap = null;
+		TreeMap<Integer, ArrayList<Integer>> bitMap = null;
 		try {
 			for (String fileName : TPMMSConstants.INPUT_FILE) {
 
@@ -46,7 +46,7 @@ public class CreateBitmap {
 
 				while (flag) {
 					j++;
-					bitMap = new TreeMap<String, ArrayList<Integer>>();
+					bitMap = new TreeMap<Integer, ArrayList<Integer>>();
 
 					flag = false;
 					MappedByteBuffer buffer = null;
@@ -61,17 +61,17 @@ public class CreateBitmap {
 							flag = true;
 							i++;
 							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
-							if (!bitMap.containsKey(new String(Arrays.copyOfRange(data, 0, 8)))) {
-								bitMap.put(new String(Arrays.copyOfRange(data, 0, 8)),
+							if (!bitMap.containsKey(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))))) {
+								bitMap.put(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))),
 										new ArrayList<Integer>());
 							}
-							(bitMap.get(new String(Arrays.copyOfRange(data, 0, 8)))).add(i);
+							(bitMap.get(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))))).add(i);
 						}
 
 						if ((buffer.capacity() / 102.0) > 0) {
 //						quickS(0, bufferArray.length - 1);
 //						writeToFile(bitMap, "bitmap");
-							Utils.writeBitmap(bitMap, filePath, j, t);
+							Utils.writeBitmapInteger(bitMap, filePath, j, t);
 							System.gc();
 						}
 						tuplesInFile = (tuplesInFile * 102 - buffer.capacity()) / 102;
