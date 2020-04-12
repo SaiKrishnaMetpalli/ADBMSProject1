@@ -33,19 +33,14 @@ public class SortFiles {
 				int start = 0;
 				file = new File(filePath + "\\" + fileName);
 				tuplesInFile = Math.ceil((file.length() + 2) / (102));
-				System.out.println("tuplesInFile " + tuplesInFile);
 				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (SIZE_OF_TUPLE)) / 3;
-				System.out.println("maxTuplesInMem " + maxTuplesInMem);
 				channel = new FileInputStream(filePath + "\\" + fileName).getChannel();
 				int j = 0;
 				while (flag) {
 					flag = false;
 					MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, start,
 							((int) (tuplesInFile < maxTuplesInMem ? (tuplesInFile * 102) - 2 : maxTuplesInMem * 102)));
-//					if (bufferArray == null)
 					bufferArray = new byte[(int) Math.ceil(buffer.capacity() / 102)][102];
-//						System.out.println("(buffer.capacity() " + (buffer.capacity() / 102));
-//						System.out.println("Math.ceil(buffer.capacity() / 102) "+Math.ceil(buffer.capacity() / 102));
 					int i = -1;
 
 					while (buffer.hasRemaining()) {
@@ -54,26 +49,14 @@ public class SortFiles {
 						flag = true;
 						i++;
 						int rem = buffer.remaining() > 102 ? 102 : buffer.remaining();
-//						System.out.println("rem "+rem);
 						buffer.get(bufferArray[i], 0, rem);
 					}
-//				Arrays.sort(bufferArray, new Comparator<byte[]>() {
-//					@Override
-//					public int compare(byte[] o1, byte[] o2) {
-//						return Long.compare(Long.valueOf(new String(o1, 0, 8)), Long.valueOf(new String(o2, 0, 8)));
-//					}
-//				});
-
-//		 			System.out.println("if ((buffer.capacity() / 102) > 0) " + ((buffer.capacity() / 102) > 0));
 					if ((buffer.capacity() / 102) > 0) {
 						quickS(0, bufferArray.length - 1);
 						writeToFile(bufferArray, TPMMSConstants.TMP_FILE_PATH + fileName + "_sorted_" + (++j) + ".tmp");
 					}
-//					System.out.println("blocksInFile "+blocksInFile);
 					tuplesInFile = tuplesInFile - buffer.capacity() / 102;
 					start = (buffer.capacity() / 102) * 102;
-//					System.out.println("blocksInFile after "+blocksInFile);
-//					System.out.println("buffer "+buffer.capacity() / (TUPLES_IN_BLOCK * SIZE_OF_TUPLE));
 
 				}
 
