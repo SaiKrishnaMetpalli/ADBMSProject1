@@ -28,26 +28,22 @@ public class MergeIndex {
 		}
 	};
 
-	public String processBitmaps(String fileName, long tuples,String indexName) throws IOException {
-		File outputFile = new File(TPMMSConstants.FINAL_INDEX_FILE_PATH + fileName + "_positionIndex.txt");
-		if (!outputFile.exists()) {
-			outputFile.getParentFile().mkdirs();
+	public void processBitmaps(String fileName, long tuples) throws IOException {
+		for (String keyName : TPMMSConstants.INDEX_KEYS) {
+			File outputFile = new File(
+					TPMMSConstants.FINAL_INDEX_FILE_PATH + keyName+"_pos_" + fileName);
+			if (!outputFile.exists()) {
+				outputFile.getParentFile().mkdirs();
+			}
+			mergeSortedTmpFiles(outputFile, keyName,fileName);
+			mergeIndexFiles(outputFile, fileName, tuples, keyName);
+			outputFile.delete();
 		}
-		mergeSortedTmpFiles(outputFile);
-		if(indexName=="EmpID") {
-			mergeEmpIDIndexFiles(outputFile, fileName, tuples);
-		} else if(indexName=="Gender") {
-			mergeGenderIndexFiles(outputFile, fileName, tuples);
-		} else {
-			mergeDeptIndexFiles(outputFile, fileName, tuples);
-		}		
-		outputFile.delete();
-		return null;
 	}
 
-	private void mergeSortedTmpFiles(File outputFile) throws IOException {
+	private void mergeSortedTmpFiles(File outputFile, String keyName, String fileName) throws IOException {
 		ArrayList<CustomBuffer> fileBufferList = new ArrayList<>();
-		File file = new File(TPMMSConstants.INDEX_FILE_PATH);
+		File file = new File(TPMMSConstants.INDEX_FILE_PATH + keyName + "\\" + fileName.replace(".txt", "\\"));
 		File[] files = file.listFiles();
 		for (File f : files) {
 
@@ -101,89 +97,41 @@ public class MergeIndex {
 		}
 	}
 
-	public void mergeEmpIDIndexFiles(File file, String fileName, long tuples) throws IOException {
+	public void mergeIndexFiles(File file, String fileName, long tuples, String keyName) throws IOException {
 		BufferedReader reader = null;
 		BufferedWriter bufferedWriter = null;
 		file.createNewFile();
 		ArrayList<String> arr = new ArrayList<String>();
 		try {
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH +fileName, false), "UTF-8"));
-			String line1 = reader.readLine();
-			String line2 = reader.readLine();
-			line1.intern();
-			line2.intern();
-			while (line1 != null) {				 
-				arr.addAll(Arrays.asList(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split(",")));
-				if(line1!=null && line2!=null) {
-					if (line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID)
-							.compareTo(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID)) != 0) {
-						Collections.sort(arr, new CustomComparator());
-						Integer[] boxedArray = getBits(arr, (int) tuples);
-						List<Integer> list = new ArrayList<>();
-						Collections.addAll(list, boxedArray);
-						bufferedWriter.write(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID) + ":" + Arrays.asList(boxedArray));
-						arr.clear();
-						bufferedWriter.newLine();					
-					}
-				} else {
-					Collections.sort(arr, new CustomComparator());
-					Integer[] boxedArray = getBits(arr, (int) tuples);
-					List<Integer> list = new ArrayList<>();
-					Collections.addAll(list, boxedArray);
-					bufferedWriter.write(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID) + ":" + Arrays.asList(boxedArray));
-					arr.clear();
-					bufferedWriter.newLine();
-				}
-				line1 = line2;
-				line2 = reader.readLine();
-			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			reader.close();
-			bufferedWriter.close();
-		}
-
-	}
-	
-	public void mergeGenderIndexFiles(File file, String fileName, long tuples) throws IOException {
-		BufferedReader reader = null;
-		BufferedWriter bufferedWriter = null;
-		file.createNewFile();
-		ArrayList<String> arr = new ArrayList<String>();
-		try {
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH +fileName, false), "UTF-8"));
+			bufferedWriter = new BufferedWriter(
+					new OutputStreamWriter(new FileOutputStream(Utils.getFileName(fileName, keyName), false), "UTF-8"));
 			String line1 = reader.readLine();
 			String line2 = reader.readLine();
 			line1.intern();
 			line2.intern();
 			while (line1 != null) {
-				arr.addAll(Arrays.asList(line1.substring(1 + 1).split(",")));
-				if(line1!=null && line2!=null) {
-					if (line1.substring(0, 1)
-							.compareTo(line2.substring(0, 1)) != 0) {
+				arr.addAll(
+						Arrays.asList(line1.substring(Utils.getEnd(keyName) - Utils.getStart(keyName) + 1).split(",")));
+				if (line1 != null && line2 != null) {
+					if (line1.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName))
+							.compareTo(line2.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName))) != 0) {
 						Collections.sort(arr, new CustomComparator());
-						Integer[] boxedArray = getBits(arr, (int) tuples);
+						Integer[] boxedArray = Utils.getBits(arr, (int) tuples);
 						List<Integer> list = new ArrayList<>();
 						Collections.addAll(list, boxedArray);
-						bufferedWriter.write(line1.substring(0, 1) + ":" + Arrays.asList(boxedArray));
+						bufferedWriter.write(line1.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName)) + ":"
+								+ Arrays.asList(boxedArray));
 						arr.clear();
-						bufferedWriter.newLine();					
+						bufferedWriter.newLine();
 					}
 				} else {
 					Collections.sort(arr, new CustomComparator());
-					Integer[] boxedArray = getBits(arr, (int) tuples);
+					Integer[] boxedArray = Utils.getBits(arr, (int) tuples);
 					List<Integer> list = new ArrayList<>();
 					Collections.addAll(list, boxedArray);
-					bufferedWriter.write(line1.substring(0, 1) + ":" + Arrays.asList(boxedArray));
+					bufferedWriter.write(line1.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName)) + ":"
+							+ Arrays.asList(boxedArray));
 					arr.clear();
 					bufferedWriter.newLine();
 				}
@@ -201,73 +149,13 @@ public class MergeIndex {
 			bufferedWriter.close();
 		}
 
-	}
-	
-	public void mergeDeptIndexFiles(File file, String fileName, long tuples) throws IOException {
-		BufferedReader reader = null;
-		BufferedWriter bufferedWriter = null;
-		file.createNewFile();
-		ArrayList<String> arr = new ArrayList<String>();
-		try {
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH +fileName, false), "UTF-8"));
-			String line1 = reader.readLine();
-			String line2 = reader.readLine();
-			line1.intern();
-			line2.intern();
-			while (line1 != null) {
-				arr.addAll(Arrays.asList(line1.substring(3 + 1).split(",")));
-				if(line1!=null && line2!=null) {
-					if (line1.substring(0, 3)
-							.compareTo(line2.substring(0, 3)) != 0) {
-						Collections.sort(arr, new CustomComparator());
-						Integer[] boxedArray = getBits(arr, (int) tuples);
-						List<Integer> list = new ArrayList<>();
-						Collections.addAll(list, boxedArray);
-						bufferedWriter.write(line1.substring(0, 3) + ":" + Arrays.asList(boxedArray));
-						arr.clear();
-						bufferedWriter.newLine();					
-					}
-				} else {
-					Collections.sort(arr, new CustomComparator());
-					Integer[] boxedArray = getBits(arr, (int) tuples);
-					List<Integer> list = new ArrayList<>();
-					Collections.addAll(list, boxedArray);
-					bufferedWriter.write(line1.substring(0, 3) + ":" + Arrays.asList(boxedArray));
-					arr.clear();
-					bufferedWriter.newLine();
-				}
-				line1 = line2;
-				line2 = reader.readLine();
-			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			reader.close();
-			bufferedWriter.close();
-		}
-
-	}
-
-	private Integer[] getBits(ArrayList<String> entry, int tuplesInFile) {		
-		Integer[] a = new Integer[tuplesInFile];
-		Arrays.fill(a, 0);
-		entry.stream().forEach(val -> {
-			a[Integer.parseInt(val.trim()) - 1] = 1;
-		});
-		return a;
 	}
 }
 
 class CustomComparator implements Comparator<String> {
+
 	@Override
 	public int compare(String o1, String o2) {
-
 		return Integer.compare(Integer.valueOf(o1.trim()), Integer.valueOf(o2.trim()));
 	}
 }
