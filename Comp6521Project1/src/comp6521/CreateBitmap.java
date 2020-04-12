@@ -2,291 +2,103 @@ package comp6521;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.LineNumberReader;
-import java.io.ObjectInputStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class CreateBitmap {
-	int TUPLES_IN_BLOCK = 40;
-	int SIZE_OF_TUPLE = 102;
-	int size;
 	MergeFiles merge = new MergeFiles();
-	ArrayList<String> sortedFiles = new ArrayList<>();
 
-	public void createIndex(String filePath) {
+	public void createIndex() {
 		File file = null;
 		long tuplesInFile = 0;
 		int maxTuplesInMem = 0;
-		FileChannel channel = null;
+//		FileChannel channel = null;
 		TreeMap<Integer, ArrayList<Integer>> bitMap = null;
-		try {
-			for (String fileName : TPMMSConstants.INPUT_FILE) {
+		Map<String, TreeMap<Integer, ArrayList<Integer>>> bitMaps = null;
 
+		for (String fileName : TPMMSConstants.INPUT_FILE) {
+
+			try (FileChannel channel = new FileInputStream(TPMMSConstants.TUPLES_FILE_PATH + "\\" + fileName)
+					.getChannel()) {
 				System.gc();
 				boolean flag = true;
 				int start = 0;
-				file = new File(filePath + "\\" + fileName);
-				tuplesInFile = (file.length() + 2) / 102;
-				long t = tuplesInFile;
-				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (SIZE_OF_TUPLE)) / 4;
-				channel = new FileInputStream(filePath + "\\" + fileName).getChannel();
+				file = new File(TPMMSConstants.TUPLES_FILE_PATH + "\\" + fileName);
+				tuplesInFile = (file.length() + 2) / TPMMSConstants.SIZE_OF_TUPLE;
+				long tuples = tuplesInFile;
+				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (TPMMSConstants.SIZE_OF_TUPLE)) / 4;
+
 				int j = 0;
 				int i = 0;
 
 				while (flag) {
 					j++;
 					bitMap = new TreeMap<Integer, ArrayList<Integer>>();
-
+					bitMaps = new HashMap<String, TreeMap<Integer, ArrayList<Integer>>>();
 					flag = false;
 					MappedByteBuffer buffer = null;
 					if (tuplesInFile > 0) {
 						buffer = channel.map(FileChannel.MapMode.READ_ONLY, start,
-								((tuplesInFile < maxTuplesInMem ? (tuplesInFile * 102) - 2 : maxTuplesInMem * 102)));
-						byte[] data = new byte[102];
+								((tuplesInFile < maxTuplesInMem ? (tuplesInFile * TPMMSConstants.SIZE_OF_TUPLE) - 2
+										: maxTuplesInMem * TPMMSConstants.SIZE_OF_TUPLE)));
+						byte[] data = new byte[TPMMSConstants.SIZE_OF_TUPLE];
+
 						while (buffer.hasRemaining()) {
-							if (buffer.remaining() < 102 && buffer.remaining() != 100) {
+							if (buffer.remaining() < TPMMSConstants.SIZE_OF_TUPLE && buffer.remaining() != 100) {
 								break;
 							}
 							flag = true;
 							i++;
-							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
-							if (!bitMap.containsKey(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))))) {
-								bitMap.put(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))),
-										new ArrayList<Integer>());
+							buffer.get(data, 0,
+									buffer.remaining() >= TPMMSConstants.SIZE_OF_TUPLE ? TPMMSConstants.SIZE_OF_TUPLE
+											: buffer.remaining());
+
+							for (String key : TPMMSConstants.INDEX_KEYS) {
+								if (bitMaps.containsKey(key)) {
+								} else {
+									bitMaps.put(key, new TreeMap<Integer, ArrayList<Integer>>());
+								}
+								if (!bitMaps.get(key).containsKey(Integer.valueOf(new String(
+										Arrays.copyOfRange(data, Utils.getStart(key), Utils.getEnd(key)))))) {
+									bitMaps.get(key)
+											.put(Integer.valueOf(new String(
+													Arrays.copyOfRange(data, Utils.getStart(key), Utils.getEnd(key)))),
+													new ArrayList<Integer>());
+								}
+								(bitMaps.get(key)
+										.get(Integer.valueOf(new String(
+												Arrays.copyOfRange(data, Utils.getStart(key), Utils.getEnd(key))))))
+														.add(i);
+
 							}
-							(bitMap.get(Integer.valueOf(new String(Arrays.copyOfRange(data, 0, 8))))).add(i);
 						}
 
 						if ((buffer.capacity() / 102.0) > 0) {
-//						quickS(0, bufferArray.length - 1);
-//						writeToFile(bitMap, "bitmap");
-							Utils.writeBitmapInteger(bitMap, filePath, j, t);
+							Utils.writeBitmap(bitMaps, TPMMSConstants.TUPLES_FILE_PATH, j, tuples, fileName);
 							System.gc();
 						}
-						tuplesInFile = (tuplesInFile * 102 - buffer.capacity()) / 102;
+						tuplesInFile = (tuplesInFile * TPMMSConstants.SIZE_OF_TUPLE - buffer.capacity())
+								/ TPMMSConstants.SIZE_OF_TUPLE;
 						start = start + buffer.capacity();
 						buffer.clear();
 					}
 				}
 				System.gc();
 				MergeIndex merge = new MergeIndex();
-				merge.processBitmaps(fileName,t,"EmpID");
-				channel.close();
-			}
-			
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	public void createGenderIndex(String filePath) {
-		File file = null;
-		long tuplesInFile = 0;
-		int maxTuplesInMem = 0;
-		FileChannel channel = null;
-		TreeMap<String, ArrayList<Integer>> bitMap = null;
-		try {
-			for (String fileName : TPMMSConstants.INPUT_FILE) {
-
-				System.gc();
-				boolean flag = true;
-				int start = 0;
-				file = new File(filePath + "\\" + fileName);
-				tuplesInFile = (file.length() + 2) / 102;
-				long t = tuplesInFile;
-				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (SIZE_OF_TUPLE)) / 4;
-				channel = new FileInputStream(filePath + "\\" + fileName).getChannel();
-				int j = 0;
-				int i = 0;
-
-				while (flag) {
-					j++;
-					bitMap = new TreeMap<String, ArrayList<Integer>>();
-
-					flag = false;
-					MappedByteBuffer buffer = null;
-					if (tuplesInFile > 0) {
-						buffer = channel.map(FileChannel.MapMode.READ_ONLY, start,
-								((tuplesInFile < maxTuplesInMem ? (tuplesInFile * 102) - 2 : maxTuplesInMem * 102)));
-						byte[] data = new byte[102];
-						while (buffer.hasRemaining()) {
-							if (buffer.remaining() < 102 && buffer.remaining() != 100) {
-								break;
-							}
-							flag = true;
-							i++;
-							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
-							if (!bitMap.containsKey(new String(Arrays.copyOfRange(data, 43, 44)))) {
-								bitMap.put(new String(Arrays.copyOfRange(data, 43, 44)),
-										new ArrayList<Integer>());
-							}
-							(bitMap.get(new String(Arrays.copyOfRange(data, 43, 44)))).add(i);
-						}
-
-						if ((buffer.capacity() / 102.0) > 0) {
-//						quickS(0, bufferArray.length - 1);
-//						writeToFile(bitMap, "bitmap");
-							Utils.writeBitmap(bitMap, filePath, j, t);
-							System.gc();
-						}
-						tuplesInFile = (tuplesInFile * 102 - buffer.capacity()) / 102;
-						start = start + buffer.capacity();
-						buffer.clear();
-					}
-				}
-				System.gc();
-				MergeIndex merge = new MergeIndex();
-				merge.processBitmaps(fileName.substring(0,3)+"_genderIndex.txt",t,"Gender");
-				channel.close();
-			}
-			
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	public void createDeptIndex(String filePath) {
-		File file = null;
-		long tuplesInFile = 0;
-		int maxTuplesInMem = 0;
-		FileChannel channel = null;
-		TreeMap<String, ArrayList<Integer>> bitMap = null;
-		try {
-			for (String fileName : TPMMSConstants.INPUT_FILE) {
-
-				System.gc();
-				boolean flag = true;
-				int start = 0;
-				file = new File(filePath + "\\" + fileName);
-				tuplesInFile = (file.length() + 2) / 102;
-				long t = tuplesInFile;
-				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (SIZE_OF_TUPLE)) / 4;
-				channel = new FileInputStream(filePath + "\\" + fileName).getChannel();
-				int j = 0;
-				int i = 0;
-
-				while (flag) {
-					j++;
-					bitMap = new TreeMap<String, ArrayList<Integer>>();
-
-					flag = false;
-					MappedByteBuffer buffer = null;
-					if (tuplesInFile > 0) {
-						buffer = channel.map(FileChannel.MapMode.READ_ONLY, start,
-								((tuplesInFile < maxTuplesInMem ? (tuplesInFile * 102) - 2 : maxTuplesInMem * 102)));
-						byte[] data = new byte[102];
-						while (buffer.hasRemaining()) {
-							if (buffer.remaining() < 102 && buffer.remaining() != 100) {
-								break;
-							}
-							flag = true;
-							i++;
-							buffer.get(data, 0, buffer.remaining() >= 102 ? 102 : buffer.remaining());
-							if (!bitMap.containsKey(new String(Arrays.copyOfRange(data, 44, 47)))) {
-								bitMap.put(new String(Arrays.copyOfRange(data, 44, 47)),
-										new ArrayList<Integer>());
-							}
-							(bitMap.get(new String(Arrays.copyOfRange(data, 44, 47)))).add(i);
-						}
-
-						if ((buffer.capacity() / 102.0) > 0) {
-//						quickS(0, bufferArray.length - 1);
-//						writeToFile(bitMap, "bitmap");
-							Utils.writeBitmap(bitMap, filePath, j, t);
-							System.gc();
-						}
-						tuplesInFile = (tuplesInFile * 102 - buffer.capacity()) / 102;
-						start = start + buffer.capacity();
-						buffer.clear();
-					}
-				}
-				System.gc();
-				MergeIndex merge = new MergeIndex();
-				merge.processBitmaps(fileName.substring(0,3)+"_deptIndex.txt",t,"Dept");
-				channel.close();
-			}
-			
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	/**
-	 * @param data1
-	 * @param fileName
-	 */
-	private void writeToFile(byte[][] data1, String fileName) {
-		/*
-		 * FileOutputStream fileOutputStream = null; try { fileOutputStream = new
-		 * FileOutputStream(new File(fileName), true); for (int row = 0; row <
-		 * bufferArray.length; row++) {
-		 * 
-		 * fileOutputStream.write(bufferArray[row]); } fileOutputStream.flush();
-		 * fileOutputStream.close(); } catch (Exception e) { e.printStackTrace(); }
-		 * finally { try { if (fileOutputStream != null) { fileOutputStream.close(); } }
-		 * catch (Exception e2) { e2.printStackTrace(); } }
-		 */}
-
-	private void writeLogsToFile(byte[] data, int j) {
-
-		FileOutputStream fileOutputStream = null;
-		try {
-			fileOutputStream = new FileOutputStream(new File("Logs_" + j), true);
-
-			fileOutputStream.write(data);
-			fileOutputStream.flush();
-			fileOutputStream.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (fileOutputStream != null) {
-					fileOutputStream.close();
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
+				merge.processBitmaps(fileName, tuples);
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private HashMap<String, BitSet> readBitmap(String filePath) {
-		HashMap<String, BitSet> bitMap = null;
-		try {
-			File f = new File(filePath + "\\" + "bitmap");
-			if (f.exists()) {
-				FileInputStream fi = new FileInputStream(f);
-				ObjectInputStream oi = new ObjectInputStream(fi);
-
-				bitMap = (HashMap<String, BitSet>) oi.readObject();
-
-				System.out.println("Read from file bitmap " + bitMap);
-
-				oi.close();
-				fi.close();
-			} else {
-				return new HashMap<String, BitSet>();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return bitMap;
 
 	}
 
@@ -306,14 +118,12 @@ public class CreateBitmap {
 
 	public void combineIndex(String indexFilePath) {
 		System.gc();
-		System.out.println(
-				"Process Started with " + Runtime.getRuntime().freeMemory() / (1024 * 1024) + " Mb free Main memory");
 		try {
 			ArrayList<LineNumberReader> indexBuffers = new ArrayList<LineNumberReader>();
 			ArrayList<Integer> counters = new ArrayList<Integer>();
 			ArrayList<String> currenLines = new ArrayList<String>();
 			File file = new File(TPMMSConstants.INDEX_FILE_PATH);
-			
+
 			File[] files = file.listFiles();
 			for (File f : files) {
 				indexBuffers.add(new LineNumberReader(Files.newBufferedReader(Paths.get(f.getAbsolutePath()))));
