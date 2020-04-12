@@ -1,25 +1,18 @@
 package comp6521;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 // Convert byte array to long
 public class Utils {
@@ -41,74 +34,45 @@ public class Utils {
 		}
 
 	}
-	
-	public static void writeBitmap(TreeMap<String, ArrayList<Integer>> bitMap, String filePath, int count,
-			long tuplesInFile) {
 
-		File file = new File(TPMMSConstants.INDEX_FILE_PATH + "_bitmap_" + count);
-		BufferedWriter bf = null;
-		try {
-			if (!file.exists()) {
-				file.getParentFile().mkdirs();
-			}
-			bf = new BufferedWriter(new FileWriter(file));
-			for (Entry<String, ArrayList<Integer>> entry : bitMap.entrySet()) {
-
-//				bf.write(entry.getKey() + ":" + getBits(entry, tuplesInFile).replace("[","").replace("]", ""));
-				bf.write(entry.getKey() + ":" + (entry.getValue().toString()).replace("[", "").replace("]", ""));
-				bf.newLine();
-			}
-			System.gc();
-			bf.flush();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
+	public static void writeBitmap(Map<String, TreeMap<Integer, ArrayList<Integer>>> bitMaps, String filePath,
+			int count, long tuplesInFile, String fileName) {
+		for (String key : bitMaps.keySet()) {
+			File file = new File(
+					TPMMSConstants.INDEX_FILE_PATH + key + "\\" + fileName.replace(".txt", "\\") + "_bitmap_" + count);
+			BufferedWriter bf = null;
 			try {
-				bf.close();
-			} catch (Exception e) {
-			}
-		}
-	}
-	
-	public static void writeBitmapInteger(TreeMap<Integer, ArrayList<Integer>> bitMap, String filePath, int count,
-			long tuplesInFile) {
+				if (!file.exists()) {
+					file.getParentFile().mkdirs();
+				}
+				bf = new BufferedWriter(new FileWriter(file));
+				for (Entry<Integer, ArrayList<Integer>> entry : bitMaps.get(key).entrySet()) {
 
-		File file = new File(TPMMSConstants.INDEX_FILE_PATH + "_bitmap_" + count);
-		BufferedWriter bf = null;
-		try {
-			if (!file.exists()) {
-				file.getParentFile().mkdirs();
-			}
-			bf = new BufferedWriter(new FileWriter(file));
-			for (Entry<Integer, ArrayList<Integer>> entry : bitMap.entrySet()) {
+					bf.write(String.format("%0" + (Utils.getEnd(key) - Utils.getStart(key)) + "d", entry.getKey()) + ":"
+							+ (entry.getValue().toString()).replace("[", "").replace("]", ""));
+					bf.newLine();
+				}
+				System.gc();
+				bf.flush();
 
-//				bf.write(entry.getKey() + ":" + getBits(entry, tuplesInFile).replace("[","").replace("]", ""));
-				bf.write(entry.getKey() + ":" + (entry.getValue().toString()).replace("[", "").replace("]", ""));
-				bf.newLine();
-			}
-			System.gc();
-			bf.flush();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				bf.close();
-			} catch (Exception e) {
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					bf.close();
+				} catch (Exception e) {
+				}
 			}
 		}
 	}
 
-
-	private static String getBits(Entry<Integer, ArrayList<Integer>> entry, long tuplesInFile) {
-		sb.setLength(0);
-		for (int c = 0; c < tuplesInFile; c++) {
-			sb.append('0');
-//			bits.add(0);
-		}
-		entry.getValue().stream().forEach(val -> sb.replace(val - 1, (int) val, "1"));
-		return sb.toString();
+	public static Integer[] getBits(ArrayList<String> entry, int tuplesInFile) {
+		Integer[] a = new Integer[tuplesInFile];
+		Arrays.fill(a, 0);
+		entry.stream().forEach(val -> {
+			a[Integer.parseInt(val.trim()) - 1] = 1;
+		});
+		return a;
 	}
 
 	public static String[] concatenate(String[] a, String[] b) {
@@ -120,5 +84,38 @@ public class Utils {
 		System.arraycopy(b, 0, c, aLen, bLen);
 
 		return c;
+	}
+
+	public static int getStart(String key) {
+
+		if (key.equals(TPMMSConstants.EMP_ID)) {
+			return 0;
+		} else if (key.equals(TPMMSConstants.GENDER)) {
+			return 43;
+		} else {
+			return 44;
+		}
+	}
+
+	public static int getEnd(String key) {
+
+		if (key.equals(TPMMSConstants.EMP_ID)) {
+			return 8;
+		} else if (key.equals(TPMMSConstants.GENDER)) {
+			return 44;
+		} else {
+			return 47;
+		}
+	}
+
+	public static String getFileName(String fileName, String keyName) {
+		sb.setLength(0);
+		if (keyName.equals(TPMMSConstants.EMP_ID)) {
+			return sb.append(TPMMSConstants.FINAL_INDEX_FILE_PATH).append(fileName).toString();
+		} else if (keyName.equals(TPMMSConstants.GENDER)) {
+			return sb.append(TPMMSConstants.FINAL_INDEX_FILE_PATH).append(keyName).append("_bitmap_").append(fileName).toString();
+		} else {
+			return sb.append(TPMMSConstants.FINAL_INDEX_FILE_PATH).append(keyName).append("_bitmap_").append(fileName).toString();
+		}
 	}
 }
