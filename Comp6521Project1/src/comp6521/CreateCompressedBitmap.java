@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 
 public class CreateCompressedBitmap {
 
-	public void createCompressedEmpIdIndex() {
+	public void createCompressedEmpIdIndex(String keyName) {
 		BufferedWriter bufferedWriter = null;
 		try {
 			for(String fileName:TPMMSConstants.INPUT_FILE) {
@@ -18,12 +18,13 @@ public class CreateCompressedBitmap {
 						new OutputStreamWriter(new FileOutputStream(TPMMSConstants.FINAL_INDEX_FILE_PATH + fileName.substring(0,3) + 
 								"_EmpIDCompressed.txt", false), "UTF-8"));
 				BufferedReader brRead = Files
-						.newBufferedReader(Paths.get(TPMMSConstants.FINAL_INDEX_FILE_PATH + fileName));
+						.newBufferedReader(Paths.get(Utils.getFileName(fileName, keyName)));
 				String compressed="";
 				String duplicate="";
 				int count=0;
 				String line=brRead.readLine();
 				while(line!=null) {
+					System.out.println("c");
 					compressed="";
 					String[] bits=line.replace("[", "").replace("]", "").substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split(",");
 					for(String bit:bits) {
@@ -42,10 +43,13 @@ public class CreateCompressedBitmap {
 					}
 					addOnes=addOnes+"0";
 					compressed=addOnes+compressed;
+					System.out.println("vvv "+line.substring(0,9)+compressed.substring(0,compressed.length()-1));
 					bufferedWriter.write(line.substring(0,9)+compressed.substring(0,compressed.length()-1));
 					bufferedWriter.newLine();
 					line=brRead.readLine();
 				}
+				bufferedWriter.flush();
+				bufferedWriter.close();
 			}
 			
 		} catch (IOException e) {
