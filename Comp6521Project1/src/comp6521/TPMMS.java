@@ -24,6 +24,9 @@ public class TPMMS {
 		bitmap.createGenderIndex(TPMMSConstants.TUPLES_FILE_PATH);
 		bitmap.createDeptIndex(TPMMSConstants.TUPLES_FILE_PATH);
 		System.gc();
+		CreateCompressedBitmap compBitmap=new CreateCompressedBitmap();
+		compBitmap.createCompressedEmpIdIndex();
+		System.gc();
 		MergeFiles merge = new MergeFiles();
 		merge.removeDuplicate();
 		System.out.print("Files Sorted :: Time elasped :: ");
