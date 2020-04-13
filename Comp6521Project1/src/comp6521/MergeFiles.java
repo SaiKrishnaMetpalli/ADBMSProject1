@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 public class MergeFiles {
 	ArrayList<Integer> positions = new ArrayList<Integer>();
 
-	public void removeDuplicate() throws IOException {
+	public void mergeFiles() throws IOException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		byte[] tuple1 = null;
 		byte[] tuple2 = null;
@@ -36,6 +36,9 @@ public class MergeFiles {
 					.newBufferedReader(Paths.get(TPMMSConstants.FINAL_INDEX_FILE_PATH + TPMMSConstants.INPUT_FILE[0]));
 			BufferedReader index2 = Files
 					.newBufferedReader(Paths.get(TPMMSConstants.FINAL_INDEX_FILE_PATH + TPMMSConstants.INPUT_FILE[1]));
+			
+			
+			
 			String line1 = index1.readLine();
 			String line2 = index2.readLine();
 			line1.intern();

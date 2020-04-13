@@ -9,11 +9,12 @@ import java.io.OutputStreamWriter;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.TreeMap;
 
 public class CreateCompressedBitmap {
 
-	public void createCompressedEmpIdIndex(String fileName, long noOfOriginalTuples) {
+	public void createCompressedEmpIdIndex(String fileName, long noOfOriginalTuples,long startTime) {
 		BufferedWriter bufferedWriter = null;
 		long tuplesInFile = 0;
 		int maxTuplesInMem = 0;
@@ -83,7 +84,8 @@ public class CreateCompressedBitmap {
 					}
 
 				}
-
+				System.out.print("Compressed Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
+				System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 				bufferedWriter.flush();
 				bufferedWriter.close();
 				System.gc();

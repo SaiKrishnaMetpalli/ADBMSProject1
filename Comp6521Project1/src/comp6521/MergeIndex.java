@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -28,7 +29,7 @@ public class MergeIndex {
 		}
 	};
 
-	public void processBitmaps(String fileName, long tuples) throws IOException {
+	public void processBitmaps(String fileName, long tuples, long startTime) throws IOException {
 		for (String keyName : TPMMSConstants.INDEX_KEYS) {
 			File outputFile = new File(
 					TPMMSConstants.FINAL_INDEX_FILE_PATH + keyName+"_pos_" + fileName);
@@ -38,7 +39,11 @@ public class MergeIndex {
 			mergeSortedTmpFiles(outputFile, keyName,fileName);
 			mergeIndexFiles(outputFile, fileName, tuples, keyName);
 			outputFile.delete();
+			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
+			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 		}
+		System.out.print("Disk IOs for creating index :: ");
+		System.out.println(TPMMS.getDiskIo()+ "\n");
 	}
 
 	private void mergeSortedTmpFiles(File outputFile, String keyName, String fileName) throws IOException {
