@@ -16,6 +16,8 @@ public interface TPMMSConstants {
 	public static final String[] INPUT_FILE = { "tt1.txt", "tt2.txt" };
 	public static final String[] INDEX_KEYS = { EMP_ID, GENDER, DEPT };
 	public static final int LENGTH_OF_EMP_ID = 8;
+	public static final int LENGTH_OF_GENDER = 1;
+	public static final int LENGTH_OF_DEPT = 3;
 	public static final int diskIo = 0;
 	public static final int TUPLES_IN_BLOCK = 40;
 	public static final int SIZE_OF_TUPLE = 102;

@@ -125,7 +125,7 @@ public class MergeFiles {
 
 					line1 = index1.readLine();
 				}
-				bufferedWriter.write(new String(tuple2));
+				bufferedWriter.write(new String(Arrays.copyOfRange(tuple2,0, 100)));
 				bufferedWriter.newLine();
 			}
 		} catch (Exception e) {

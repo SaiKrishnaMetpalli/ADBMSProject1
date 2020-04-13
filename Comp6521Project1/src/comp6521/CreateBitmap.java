@@ -35,7 +35,8 @@ public class CreateBitmap {
 				file = new File(TPMMSConstants.TUPLES_FILE_PATH + "\\" + fileName);
 				tuplesInFile = (file.length() + 2) / TPMMSConstants.SIZE_OF_TUPLE;
 				long tuples = tuplesInFile;
-				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (TPMMSConstants.SIZE_OF_TUPLE)) / 4;
+				Utils.setTuples(fileName,tuples);
+				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (TPMMSConstants.SIZE_OF_TUPLE)) / 2;
 
 				int j = 0;
 				int i = 0;
