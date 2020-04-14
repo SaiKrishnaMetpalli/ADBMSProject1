@@ -65,6 +65,7 @@ public class MergeFiles {
 								tuple2 = tuple1.clone();
 							}
 						}
+						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 					}
 
 					for (int i = 0; i < pos2.length; i++) {
@@ -78,6 +79,7 @@ public class MergeFiles {
 								tuple2 = tuple1.clone();
 							}
 						}
+						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 					}
 
 					line1 = index1.readLine();
@@ -99,9 +101,9 @@ public class MergeFiles {
 								tuple2 = tuple1.clone();
 							}
 						}
+						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 					}
 					line2 = index2.readLine();
-
 				} else {
 					pos1 = getIndex(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
 					tuple1 = new byte[102];
@@ -118,6 +120,7 @@ public class MergeFiles {
 								tuple2 = tuple1.clone();
 							}
 						}
+						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 					}
 
 					line1 = index1.readLine();

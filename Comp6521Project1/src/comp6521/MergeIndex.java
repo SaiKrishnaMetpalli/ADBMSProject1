@@ -39,11 +39,11 @@ public class MergeIndex {
 			mergeSortedTmpFiles(outputFile, keyName,fileName);
 			mergeIndexFiles(outputFile, fileName, tuples, keyName);
 			outputFile.delete();
-			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
-			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
+//			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
+//			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 		}
-		System.out.print("Disk IOs for creating index :: ");
-		System.out.println(TPMMS.getDiskIo()+ "\n");
+//		System.out.print("Total Disk I/O till now :: ");
+//		System.out.println(TPMMS.getDiskIo()+ "\n");
 	}
 
 	private void mergeSortedTmpFiles(File outputFile, String keyName, String fileName) throws IOException {
@@ -51,7 +51,6 @@ public class MergeIndex {
 		File file = new File(TPMMSConstants.INDEX_FILE_PATH + keyName + "\\" + fileName.replace(".txt", "\\"));
 		File[] files = file.listFiles();
 		for (File f : files) {
-
 			BufferedReader reader = Files.newBufferedReader(Paths.get(f.getAbsolutePath()));
 			CustomBuffer fileBuffer = new CustomBuffer(reader);
 			fileBufferList.add(fileBuffer);
