@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.TreeMap;
 
@@ -83,7 +82,8 @@ public class CreateCompressedBitmap {
 						start = start + buffer.capacity();
 						buffer.clear();
 					}
-
+					TPMMS.setDiskIo(TPMMS.getDiskIo()
+							+ 2);
 				}
 				System.out.print(
 						"Compressed Index Created for :: " + keyName + " :: File :: " + fileName + " Time elasped :: ");

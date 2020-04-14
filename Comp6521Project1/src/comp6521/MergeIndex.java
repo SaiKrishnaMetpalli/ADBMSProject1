@@ -42,7 +42,7 @@ public class MergeIndex {
 			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
 			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 		}
-		System.out.print("Disk IOs for creating index :: ");
+		System.out.print("Total Disk I/O till now :: ");
 		System.out.println(TPMMS.getDiskIo()+ "\n");
 	}
 
@@ -51,7 +51,6 @@ public class MergeIndex {
 		File file = new File(TPMMSConstants.INDEX_FILE_PATH + keyName + "\\" + fileName.replace(".txt", "\\"));
 		File[] files = file.listFiles();
 		for (File f : files) {
-
 			BufferedReader reader = Files.newBufferedReader(Paths.get(f.getAbsolutePath()));
 			CustomBuffer fileBuffer = new CustomBuffer(reader);
 			fileBufferList.add(fileBuffer);
