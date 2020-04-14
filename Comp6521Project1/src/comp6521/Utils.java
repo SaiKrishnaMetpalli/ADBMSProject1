@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 // Convert byte array to long
 public class Utils {
@@ -68,13 +69,13 @@ public class Utils {
 		}
 	}
 
-	public static Integer[] getBits(ArrayList<String> entry, int tuplesInFile) {
+	public static String getBits(ArrayList<String> entry, int tuplesInFile) {
 		Integer[] a = new Integer[tuplesInFile];
 		Arrays.fill(a, 0);
 		entry.stream().forEach(val -> {
 			a[Integer.parseInt(val.trim()) - 1] = 1;
 		});
-		return a;
+		return Arrays.asList(a).stream().map(n -> String.valueOf(n)).collect(Collectors.joining("", "", ""));
 	}
 
 	public static String[] concatenate(String[] a, String[] b) {
@@ -125,13 +126,11 @@ public class Utils {
 
 	public static int getLineSize(String keyName, long noOfOriginalTuples) {
 		if (keyName.equals(TPMMSConstants.EMP_ID)) {
-			return (int) (TPMMSConstants.LENGTH_OF_EMP_ID + 3 + noOfOriginalTuples + (2 * (noOfOriginalTuples - 1))
-					+ 2);
+			return (int) (TPMMSConstants.LENGTH_OF_EMP_ID + 1 + noOfOriginalTuples + 2);
 		} else if (keyName.equals(TPMMSConstants.GENDER)) {
-			return (int) (TPMMSConstants.LENGTH_OF_GENDER + 3 + noOfOriginalTuples + (2 * (noOfOriginalTuples - 1))
-					+ 2);
+			return (int) (TPMMSConstants.LENGTH_OF_GENDER + 1 + noOfOriginalTuples + 2);
 		} else {
-			return (int) (TPMMSConstants.LENGTH_OF_DEPT + 3 + noOfOriginalTuples + (2 * (noOfOriginalTuples - 1)) + 2);
+			return (int) (TPMMSConstants.LENGTH_OF_DEPT + 1 + noOfOriginalTuples + 2);
 		}
 	}
 

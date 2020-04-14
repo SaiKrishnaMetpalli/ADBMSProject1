@@ -20,22 +20,20 @@ public class TPMMS {
 		long start = new Date().getTime();
 
 		CreateBitmap bitmap = new CreateBitmap();
-		bitmap.createIndex();
+		bitmap.createIndex(start);
 		System.gc();
+		MergeFiles merge = new MergeFiles();
+		merge.mergeFiles();
+		System.out.print("Files Merged :: Time Took :: ");
+		System.out.println((new Date().getTime() - start) + " milliseconds\n");
+		System.gc();
+
 		CreateCompressedBitmap compBitmap = new CreateCompressedBitmap();
 		for (String fileName : TPMMSConstants.INPUT_FILE) {
-			compBitmap.createCompressedEmpIdIndex(fileName,Utils.getTuples(fileName));
+			compBitmap.createCompressedEmpIdIndex(fileName, Utils.getTuples(fileName),start);
 		}
-		System.gc();
-
-		System.out.print("Files Sorted :: Time elasped :: ");
-		System.out.println((new Date().getTime() - start) + " milliseconds");
-
-		MergeFiles merge = new MergeFiles();
-		merge.removeDuplicate();
 
 		TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
-		System.out.print("Merging Done :: ");
 		System.out.print("Total Time elasped ");
 		System.out.println(new Date().getTime() - start + " milliseconds");
 		System.out.println("Total Disk I/O " + diskIo);

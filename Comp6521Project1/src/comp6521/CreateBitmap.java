@@ -17,7 +17,7 @@ import java.util.TreeMap;
 public class CreateBitmap {
 	MergeFiles merge = new MergeFiles();
 
-	public void createIndex() {
+	public void createIndex(long startTime) {
 		File file = null;
 		long tuplesInFile = 0;
 		int maxTuplesInMem = 0;
@@ -26,7 +26,7 @@ public class CreateBitmap {
 		Map<String, TreeMap<Integer, ArrayList<Integer>>> bitMaps = null;
 
 		for (String fileName : TPMMSConstants.INPUT_FILE) {
-
+			TPMMS.setDiskIo(0);
 			try (FileChannel channel = new FileInputStream(TPMMSConstants.TUPLES_FILE_PATH + "\\" + fileName)
 					.getChannel()) {
 				System.gc();
@@ -35,7 +35,7 @@ public class CreateBitmap {
 				file = new File(TPMMSConstants.TUPLES_FILE_PATH + "\\" + fileName);
 				tuplesInFile = (file.length() + 2) / TPMMSConstants.SIZE_OF_TUPLE;
 				long tuples = tuplesInFile;
-				Utils.setTuples(fileName,tuples);
+				Utils.setTuples(fileName, tuples);
 				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (TPMMSConstants.SIZE_OF_TUPLE)) / 2;
 
 				int j = 0;
@@ -87,6 +87,9 @@ public class CreateBitmap {
 							Utils.writeBitmap(bitMaps, TPMMSConstants.TUPLES_FILE_PATH, j, tuples, fileName);
 							System.gc();
 						}
+						System.out.println("max "+buffer.capacity());
+						TPMMS.setDiskIo(TPMMS.getDiskIo()
+								+ 1);
 						tuplesInFile = (tuplesInFile * TPMMSConstants.SIZE_OF_TUPLE - buffer.capacity())
 								/ TPMMSConstants.SIZE_OF_TUPLE;
 						start = start + buffer.capacity();
@@ -95,7 +98,7 @@ public class CreateBitmap {
 				}
 				System.gc();
 				MergeIndex merge = new MergeIndex();
-				merge.processBitmaps(fileName, tuples);
+				merge.processBitmaps(fileName, tuples, startTime);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
