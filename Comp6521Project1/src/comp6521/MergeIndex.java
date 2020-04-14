@@ -122,21 +122,15 @@ public class MergeIndex {
 					if (line1.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName))
 							.compareTo(line2.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName))) != 0) {
 						Collections.sort(arr, new CustomComparator());
-						Integer[] boxedArray = Utils.getBits(arr, (int) tuples);
-						List<Integer> list = new ArrayList<>();
-						Collections.addAll(list, boxedArray);
 						bufferedWriter.write(line1.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName)) + ":"
-								+ Arrays.asList(boxedArray));
+								+ Utils.getBits(arr, (int) tuples));
 						arr.clear();
 						bufferedWriter.newLine();
 					}
 				} else {
 					Collections.sort(arr, new CustomComparator());
-					Integer[] boxedArray = Utils.getBits(arr, (int) tuples);
-					List<Integer> list = new ArrayList<>();
-					Collections.addAll(list, boxedArray);
 					bufferedWriter.write(line1.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName)) + ":"
-							+ Arrays.asList(boxedArray));
+							+ Utils.getBits(arr, (int) tuples));
 					arr.clear();
 					bufferedWriter.newLine();
 				}
