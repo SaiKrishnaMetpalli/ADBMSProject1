@@ -39,11 +39,11 @@ public class MergeIndex {
 			mergeSortedTmpFiles(outputFile, keyName,fileName);
 			mergeIndexFiles(outputFile, fileName, tuples, keyName);
 			outputFile.delete();
-			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
-			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
+//			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
+//			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 		}
-		System.out.print("Total Disk I/O till now :: ");
-		System.out.println(TPMMS.getDiskIo()+ "\n");
+//		System.out.print("Total Disk I/O till now :: ");
+//		System.out.println(TPMMS.getDiskIo()+ "\n");
 	}
 
 	private void mergeSortedTmpFiles(File outputFile, String keyName, String fileName) throws IOException {

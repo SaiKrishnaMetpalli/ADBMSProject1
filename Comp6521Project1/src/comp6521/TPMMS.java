@@ -37,10 +37,7 @@ public class TPMMS {
 		merge.mergeFiles();
 		System.out.print("Files Merged :: Time Took :: ");
 		System.out.println((new Date().getTime() - start) + " milliseconds\n");
-		System.gc();
 		
-		System.out.print("Total Time elasped ");
-		System.out.println(new Date().getTime() - start + " milliseconds");
 		System.out.println("Total Disk I/O " + diskIo);
 	}
 

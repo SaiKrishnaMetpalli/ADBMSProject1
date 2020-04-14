@@ -85,9 +85,9 @@ public class CreateCompressedBitmap {
 					TPMMS.setDiskIo(TPMMS.getDiskIo()
 							+ 2);
 				}
-				System.out.print(
-						"Compressed Index Created for :: " + keyName + " :: File :: " + fileName + " Time elasped :: ");
-				System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
+//				System.out.print(
+//						"Compressed Index Created for :: " + keyName + " :: File :: " + fileName + " Time elasped :: ");
+//				System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 				bufferedWriter.flush();
 				bufferedWriter.close();
 				System.gc();
