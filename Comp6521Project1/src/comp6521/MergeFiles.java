@@ -45,47 +45,89 @@ public class MergeFiles {
 			channel1 = new FileInputStream(TPMMSConstants.TUPLES_FILE_PATH + TPMMSConstants.INPUT_FILE[0]).getChannel();
 			channel2 = new FileInputStream(TPMMSConstants.TUPLES_FILE_PATH + TPMMSConstants.INPUT_FILE[1]).getChannel();
 
-			while (line1 != null && line2 != null) {
-				if (Long.valueOf(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))
-						.compareTo(Long.valueOf(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))) == 0) {
+			while (line1 != null || line2 != null) {
+				if (line1 != null && line2 != null) {
+					if (Long.valueOf(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))
+							.compareTo(Long.valueOf(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))) == 0) {
 
-					pos1 = getIndex(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
-					pos2 = getIndex(line2.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
-					tuple1 = new byte[100];
-					tuple2 = null;
+						pos1 = getIndex(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
+						pos2 = getIndex(line2.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
+						tuple1 = new byte[100];
+						tuple2 = null;
 
-					for (int i = 0; i < pos1.length; i++) {
-						buffer1 = channel1.map(FileChannel.MapMode.READ_ONLY, pos1[i] * 102, 100);
-						buffer1.get(tuple1, 0, 100);
-						if (tuple2 == null) {
-							tuple2 = tuple1.clone();
-						} else {
-							if (sdf.parse(new String(Arrays.copyOfRange(tuple1, 8, 18)))
-									.compareTo(sdf.parse(new String(Arrays.copyOfRange(tuple2, 8, 18)))) > 0) {
+						for (int i = 0; i < pos1.length; i++) {
+							buffer1 = channel1.map(FileChannel.MapMode.READ_ONLY, pos1[i] * 102, 100);
+							buffer1.get(tuple1, 0, 100);
+							if (tuple2 == null) {
 								tuple2 = tuple1.clone();
+							} else {
+								if (sdf.parse(new String(Arrays.copyOfRange(tuple1, 8, 18)))
+										.compareTo(sdf.parse(new String(Arrays.copyOfRange(tuple2, 8, 18)))) > 0) {
+									tuple2 = tuple1.clone();
+								}
 							}
+							TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 						}
-						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
-					}
 
-					for (int i = 0; i < pos2.length; i++) {
-						buffer2 = channel2.map(FileChannel.MapMode.READ_ONLY, pos2[i] * 102, 100);
-						buffer2.get(tuple1, 0, 100);
-						if (tuple2 == null) {
-							tuple2 = tuple1.clone();
-						} else {
-							if (sdf.parse(new String(Arrays.copyOfRange(tuple1, 8, 18)))
-									.compareTo(sdf.parse(new String(Arrays.copyOfRange(tuple2, 8, 18)))) > 0) {
+						for (int i = 0; i < pos2.length; i++) {
+							buffer2 = channel2.map(FileChannel.MapMode.READ_ONLY, pos2[i] * 102, 100);
+							buffer2.get(tuple1, 0, 100);
+							if (tuple2 == null) {
 								tuple2 = tuple1.clone();
+							} else {
+								if (sdf.parse(new String(Arrays.copyOfRange(tuple1, 8, 18)))
+										.compareTo(sdf.parse(new String(Arrays.copyOfRange(tuple2, 8, 18)))) > 0) {
+									tuple2 = tuple1.clone();
+								}
 							}
+							TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 						}
-						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
-					}
 
-					line1 = index1.readLine();
-					line2 = index2.readLine();
-				} else if (Long.valueOf(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))
-						.compareTo(Long.valueOf(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))) > 0) {
+						line1 = index1.readLine();
+						line2 = index2.readLine();
+					} else if (Long.valueOf(line1.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))
+							.compareTo(Long.valueOf(line2.substring(0, TPMMSConstants.LENGTH_OF_EMP_ID))) > 0) {
+						pos2 = getIndex(line2.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
+						tuple1 = new byte[102];
+						tuple2 = null;
+
+						for (int i = 0; i < pos2.length; i++) {
+							buffer2 = channel2.map(FileChannel.MapMode.READ_ONLY, pos2[i] * 102, 100);
+							buffer2.get(tuple1, 0, 100);
+							if (tuple2 == null) {
+								tuple2 = tuple1.clone();
+							} else {
+								if (sdf.parse(new String(Arrays.copyOfRange(tuple1, 8, 18)))
+										.compareTo(sdf.parse(new String(Arrays.copyOfRange(tuple2, 8, 18)))) > 0) {
+									tuple2 = tuple1.clone();
+								}
+							}
+							TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
+						}
+						line2 = index2.readLine();
+					} else {
+						pos1 = getIndex(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
+						tuple1 = new byte[102];
+						tuple2 = null;
+
+						for (int i = 0; i < pos1.length; i++) {
+							buffer1 = channel1.map(FileChannel.MapMode.READ_ONLY, pos1[i] * 102, 100);
+							buffer1.get(tuple1, 0, 100);
+							if (tuple2 == null) {
+								tuple2 = tuple1.clone();
+							} else {
+								if (sdf.parse(new String(Arrays.copyOfRange(tuple1, 8, 18)))
+										.compareTo(sdf.parse(new String(Arrays.copyOfRange(tuple2, 8, 18)))) > 0) {
+									tuple2 = tuple1.clone();
+								}
+							}
+							TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
+						}
+
+						line1 = index1.readLine();
+					}
+				} else if (line2 != null) {
+
 					pos2 = getIndex(line2.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
 					tuple1 = new byte[102];
 					tuple2 = null;
@@ -104,6 +146,7 @@ public class MergeFiles {
 						TPMMS.setDiskIo(TPMMS.getDiskIo() + 1);
 					}
 					line2 = index2.readLine();
+
 				} else {
 					pos1 = getIndex(line1.substring(TPMMSConstants.LENGTH_OF_EMP_ID + 1).split("(?!^)"));
 					tuple1 = new byte[102];

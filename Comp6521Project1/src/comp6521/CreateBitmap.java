@@ -35,11 +35,13 @@ public class CreateBitmap {
 				Utils.setTuples(fileName, tuples);
 				maxTuplesInMem = (int) (Runtime.getRuntime().freeMemory() / (TPMMSConstants.SIZE_OF_TUPLE)) / 2;
 
-				int j = 0;
-				int i = 0;
+				int numbreOfPasses = 0;
+				int lineNumber = 0;
 
 				while (flag) {
-					j++;
+					TPMMS.setDiskIo(TPMMS.getDiskIo()
+							+ 1);
+					numbreOfPasses++;
 					bitMaps = new HashMap<String, TreeMap<Integer, ArrayList<Integer>>>();
 					flag = false;
 					MappedByteBuffer buffer = null;
@@ -54,7 +56,7 @@ public class CreateBitmap {
 								break;
 							}
 							flag = true;
-							i++;
+							lineNumber++;
 							buffer.get(data, 0,
 									buffer.remaining() >= TPMMSConstants.SIZE_OF_TUPLE ? TPMMSConstants.SIZE_OF_TUPLE
 											: buffer.remaining());
@@ -74,17 +76,17 @@ public class CreateBitmap {
 								(bitMaps.get(key)
 										.get(Integer.valueOf(new String(
 												Arrays.copyOfRange(data, Utils.getStart(key), Utils.getEnd(key))))))
-														.add(i);
+														.add(lineNumber);
 
 							}
+							
 						}
 
 						if ((buffer.capacity() / 102.0) > 0) {
-							Utils.writeBitmap(bitMaps, TPMMSConstants.TUPLES_FILE_PATH, j, tuples, fileName);
+							Utils.writeBitmap(bitMaps, TPMMSConstants.TUPLES_FILE_PATH, numbreOfPasses, tuples, fileName);
 							System.gc();
 						}
-						TPMMS.setDiskIo(TPMMS.getDiskIo()
-								+ 1);
+						
 						tuplesInFile = (tuplesInFile * TPMMSConstants.SIZE_OF_TUPLE - buffer.capacity())
 								/ TPMMSConstants.SIZE_OF_TUPLE;
 						start = start + buffer.capacity();
