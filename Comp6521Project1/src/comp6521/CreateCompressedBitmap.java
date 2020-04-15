@@ -34,6 +34,8 @@ public class CreateCompressedBitmap {
 				String currentLine = "";
 				currentLine.intern();
 				while (flag) {
+					TPMMS.setDiskIo(TPMMS.getDiskIo()
+							+ 2);
 					bitMap = new TreeMap<Integer, ArrayList<Integer>>();
 					flag = false;
 					MappedByteBuffer buffer = null;
@@ -76,14 +78,14 @@ public class CreateCompressedBitmap {
 									.write(currentLine.substring(0, Utils.getEnd(keyName) - Utils.getStart(keyName) + 1)
 											+ compressed.substring(0, compressed.length() - 1));
 							bufferedWriter.newLine();
+							
 						}
 
 						tuplesInFile = (tuplesInFile * lineSize - buffer.capacity()) / lineSize;
 						start = start + buffer.capacity();
 						buffer.clear();
 					}
-					TPMMS.setDiskIo(TPMMS.getDiskIo()
-							+ 2);
+					
 				}
 //				System.out.print(
 //						"Compressed Index Created for :: " + keyName + " :: File :: " + fileName + " Time elasped :: ");
