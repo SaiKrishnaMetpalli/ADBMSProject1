@@ -38,7 +38,7 @@ public class MergeIndex {
 			}
 			mergeSortedTmpFiles(outputFile, keyName,fileName);
 			mergeIndexFiles(outputFile, fileName, tuples, keyName);
-//			outputFile.delete();
+			outputFile.delete();
 //			System.out.print("Index Created for :: "+ keyName +" :: File :: "+ fileName+" Time elasped :: ");
 //			System.out.println((new Date().getTime() - startTime) + " milliseconds\n");
 		}
@@ -59,9 +59,9 @@ public class MergeIndex {
 		BufferedWriter bufferedWriter = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(outputFile, true), "UTF-8"));
 		merge(bufferedWriter, fileBufferList);
-//		for (File f : files) {
-//			f.delete();
-//		}
+		for (File f : files) {
+			f.delete();
+		}
 
 	}
 
